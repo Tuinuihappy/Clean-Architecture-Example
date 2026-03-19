@@ -1,14 +1,16 @@
 using CleanArchitectureDemo.API.Middleware;
-using CleanArchitectureDemo.Application;
-using CleanArchitectureDemo.Infrastructure;
-using CleanArchitectureDemo.Infrastructure.Data;
+using CleanArchitectureDemo.Modules.Catalog.Infrastructure;
+using CleanArchitectureDemo.Modules.Ordering.Infrastructure;
+using CleanArchitectureDemo.Modules.Catalog.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ===== Register Services =====
-// เรียก AddInfrastructure() และ AddApplication()
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+// เรียก AddCatalogModule() ซึ่งจะครอบคลุมทั้ง Application & Infrastructure ของตระกูล Catalog
+builder.Services.AddCatalogModule();
+
+// เรียก AddOrderingModule() เตรียมพร้อมสำหรับระบบสั่งซื้อที่แยกอิสระจาก Catalog
+builder.Services.AddOrderingModule();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

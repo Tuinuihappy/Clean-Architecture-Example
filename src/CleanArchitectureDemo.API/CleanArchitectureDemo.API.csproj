@@ -12,8 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CleanArchitectureDemo.Infrastructure\CleanArchitectureDemo.Infrastructure.csproj" />
-    <ProjectReference Include="..\CleanArchitectureDemo.Application\CleanArchitectureDemo.Application.csproj" />
+    <ProjectReference Include="..\Modules\Catalog\Catalog.Application\CleanArchitectureDemo.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\Modules\Catalog\Catalog.Infrastructure\CleanArchitectureDemo.Modules.Catalog.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Ordering\Ordering.Application\CleanArchitectureDemo.Modules.Ordering.Application.csproj" />
+    <ProjectReference Include="..\Modules\Ordering\Ordering.Infrastructure\CleanArchitectureDemo.Modules.Ordering.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
-using CleanArchitectureDemo.Application.DTOs;
-using CleanArchitectureDemo.Application.Interfaces;
+using CleanArchitectureDemo.Modules.Catalog.Application.DTOs;
+using CleanArchitectureDemo.Modules.Catalog.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArchitectureDemo.API.Controllers;

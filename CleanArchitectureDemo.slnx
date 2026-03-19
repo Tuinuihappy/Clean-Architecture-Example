@@ -1,8 +1,27 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/CleanArchitectureDemo.API/CleanArchitectureDemo.API.csproj" />
-    <Project Path="src/CleanArchitectureDemo.Application/CleanArchitectureDemo.Application.csproj" />
-    <Project Path="src/CleanArchitectureDemo.Domain/CleanArchitectureDemo.Domain.csproj" />
-    <Project Path="src/CleanArchitectureDemo.Infrastructure/CleanArchitectureDemo.Infrastructure.csproj" />
+    <Project Path="src/CleanArchitectureDemo.Shared.Kernel/CleanArchitectureDemo.Shared.Kernel.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Catalog/" />
+  <Folder Name="/src/Modules/Catalog/Catalog.Application/">
+    <Project Path="src/Modules/Catalog/Catalog.Application/CleanArchitectureDemo.Modules.Catalog.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Catalog.Domain/">
+    <Project Path="src/Modules/Catalog/Catalog.Domain/CleanArchitectureDemo.Modules.Catalog.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Catalog.Infrastructure/">
+    <Project Path="src/Modules/Catalog/Catalog.Infrastructure/CleanArchitectureDemo.Modules.Catalog.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Ordering/" />
+  <Folder Name="/src/Modules/Ordering/Ordering.Application/">
+    <Project Path="src/Modules/Ordering/Ordering.Application/CleanArchitectureDemo.Modules.Ordering.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Ordering/Ordering.Domain/">
+    <Project Path="src/Modules/Ordering/Ordering.Domain/CleanArchitectureDemo.Modules.Ordering.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Ordering/Ordering.Infrastructure/">
+    <Project Path="src/Modules/Ordering/Ordering.Infrastructure/CleanArchitectureDemo.Modules.Ordering.Infrastructure.csproj" />
   </Folder>
 </Solution>
