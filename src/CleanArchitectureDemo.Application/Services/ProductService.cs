@@ -111,6 +111,7 @@ public class ProductService : IProductService
         if (product is null)
             return Result.Failure($"Product with Id {id} not found.");
 
+        product.RecordDeletion();
         await _productRepository.DeleteAsync(product);
         return Result.Success();
     }

@@ -1,12 +1,13 @@
 using CleanArchitectureDemo.API.Middleware;
+using CleanArchitectureDemo.Application;
 using CleanArchitectureDemo.Infrastructure;
 using CleanArchitectureDemo.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ===== Register Services =====
-// เรียก AddInfrastructure() จาก Infrastructure layer
-// API layer ไม่ต้องรู้ว่า register service อะไรบ้าง — มี extension method ห่อไว้ให้
+// เรียก AddInfrastructure() และ AddApplication()
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
 builder.Services.AddControllers();

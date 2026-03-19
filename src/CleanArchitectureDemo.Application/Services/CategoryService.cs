@@ -78,6 +78,7 @@ public class CategoryService : ICategoryService
         if (await _categoryRepository.HasProductsAsync(id))
             return Result.Failure("Cannot delete category that has products.");
 
+        category.RecordDeletion();
         await _categoryRepository.DeleteAsync(category);
         return Result.Success();
     }

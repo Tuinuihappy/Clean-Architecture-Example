@@ -1,14 +1,15 @@
+using CleanArchitectureDemo.Domain.Common;
 using CleanArchitectureDemo.Domain.Exceptions;
 
 namespace CleanArchitectureDemo.Domain.Entities;
 
 /// <summary>
 /// Category Entity — หมวดหมู่สินค้า
-/// Entity ใน Domain layer จะมี business logic อยู่ภายใน (Rich Domain Model)
+/// สืบทอดจาก AggregateRoot (Category ถือเป็นอีก Root หนึ่ง)
 /// </summary>
-public class Category
+public class Category : AggregateRoot
 {
-    public int Id { get; private set; }
+    // ลบ Id ออก เพราะ base class มีแล้ว
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -25,6 +26,8 @@ public class Category
         SetName(name);
         Description = description;
         CreatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new Events.CategoryCreatedEvent(this));
     }
 
     public void SetName(string name)
@@ -35,11 +38,25 @@ public class Category
         if (name.Length > 100)
             throw new DomainException("Category name cannot exceed 100 characters.");
 
-        Name = name.Trim();
+        if (Name != name.Trim())
+        {
+            Name = name.Trim();
+            AddDomainEvent(new Events.CategoryUpdatedEvent(this));
+        }
     }
 
     public void SetDescription(string? description)
     {
-        Description = description?.Trim();
+        var newDesc = description?.Trim();
+        if (Description != newDesc)
+        {
+            Description = newDesc;
+            AddDomainEvent(new Events.CategoryUpdatedEvent(this));
+        }
+    }
+
+    public void RecordDeletion()
+    {
+        AddDomainEvent(new Events.CategoryDeletedEvent(this));
     }
 }

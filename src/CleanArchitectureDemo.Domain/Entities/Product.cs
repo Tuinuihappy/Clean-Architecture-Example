@@ -1,16 +1,17 @@
+using CleanArchitectureDemo.Domain.Common;
 using CleanArchitectureDemo.Domain.Enums;
+using CleanArchitectureDemo.Domain.Events;
 using CleanArchitectureDemo.Domain.Exceptions;
 
 namespace CleanArchitectureDemo.Domain.Entities;
 
 /// <summary>
 /// Product Entity — สินค้า
-/// Rich Domain Model: Entity มี business logic ภายในตัว ไม่ใช่แค่ data container
-/// ใช้ private set เพื่อบังคับให้แก้ไขข้อมูลผ่าน method ที่มี validation
+/// สืบทอดจาก AggregateRoot ทำให้สามารถบันทึก Domain Events ภายในตัวเองได้
 /// </summary>
-public class Product
+public class Product : AggregateRoot
 {
-    public int Id { get; private set; }
+    // ลบ Id ออก เพราะ base class มีแล้ว
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public decimal Price { get; private set; }
@@ -35,6 +36,9 @@ public class Product
         CategoryId = categoryId;
         Status = ProductStatus.Draft;
         CreatedAt = DateTime.UtcNow;
+
+        // เมื่อสร้าง Product ให้ raise event สร้างเสร็จแล้วด้วย
+        AddDomainEvent(new ProductCreatedEvent(this));
     }
 
     // ===== Business Logic Methods =====
@@ -49,12 +53,17 @@ public class Product
 
         Name = name.Trim();
         MarkUpdated();
+        AddDomainEvent(new ProductUpdatedEvent(this));
     }
 
     public void SetDescription(string? description)
     {
-        Description = description?.Trim();
-        MarkUpdated();
+        if (Description != description?.Trim())
+        {
+            Description = description?.Trim();
+            MarkUpdated();
+            AddDomainEvent(new ProductUpdatedEvent(this));
+        }
     }
 
     public void SetPrice(decimal price)
@@ -62,8 +71,13 @@ public class Product
         if (price < 0)
             throw new DomainException("Price cannot be negative.");
 
-        Price = price;
-        MarkUpdated();
+        if (Price != price)
+        {
+            var oldPrice = Price;
+            Price = price;
+            MarkUpdated();
+            AddDomainEvent(new ProductPriceChangedEvent(this, oldPrice, price));
+        }
     }
 
     public void SetStockQuantity(int quantity)
@@ -71,8 +85,13 @@ public class Product
         if (quantity < 0)
             throw new DomainException("Stock quantity cannot be negative.");
 
-        StockQuantity = quantity;
-        MarkUpdated();
+        if (StockQuantity != quantity)
+        {
+            var oldQuantity = StockQuantity;
+            StockQuantity = quantity;
+            MarkUpdated();
+            AddDomainEvent(new ProductStockUpdatedEvent(this, oldQuantity, quantity));
+        }
     }
 
     public void SetCategory(int categoryId)
@@ -80,8 +99,12 @@ public class Product
         if (categoryId <= 0)
             throw new DomainException("Invalid category.");
 
-        CategoryId = categoryId;
-        MarkUpdated();
+        if (CategoryId != categoryId)
+        {
+            CategoryId = categoryId;
+            MarkUpdated();
+            AddDomainEvent(new ProductUpdatedEvent(this));
+        }
     }
 
     public void Activate()
@@ -91,18 +114,34 @@ public class Product
 
         Status = ProductStatus.Active;
         MarkUpdated();
+
+        // เมื่อ Product ถูก Activate ให้ raise event ด้วย
+        AddDomainEvent(new ProductActivatedEvent(this));
     }
 
     public void Deactivate()
     {
-        Status = ProductStatus.Inactive;
-        MarkUpdated();
+        if (Status != ProductStatus.Inactive)
+        {
+            Status = ProductStatus.Inactive;
+            MarkUpdated();
+            AddDomainEvent(new ProductDeactivatedEvent(this));
+        }
     }
 
     public void Discontinue()
     {
-        Status = ProductStatus.Discontinued;
-        MarkUpdated();
+        if (Status != ProductStatus.Discontinued)
+        {
+            Status = ProductStatus.Discontinued;
+            MarkUpdated();
+            AddDomainEvent(new ProductDiscontinuedEvent(this));
+        }
+    }
+
+    public void RecordDeletion()
+    {
+        AddDomainEvent(new ProductDeletedEvent(this));
     }
 
     private void MarkUpdated()

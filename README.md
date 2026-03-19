@@ -1,6 +1,6 @@
-# 🏗️ ASP.NET Core Clean Architecture Demo
+# 🏗️ ASP.NET Core Clean Architecture + DDD + EDA Demo
 
-ตัวอย่างโปรเจค ASP.NET Core API ที่ใช้ **Clean Architecture** สำหรับ **Product Management System**
+ตัวอย่างโปรเจค ASP.NET Core API ที่ใช้ **Clean Architecture** ผสมผสานกับ **Domain-Driven Design (DDD)** และ **Event-Driven Architecture (EDA)** สำหรับ **Product Management System**
 
 ---
 
@@ -67,12 +67,14 @@ CleanArchitectureDemo/
 
 | ส่วนประกอบ | หน้าที่ |
 |---|---|
-| **Entities** | Business objects ที่มี logic ภายใน (Rich Domain Model) เช่น Product มี method `Activate()`, `SetPrice()` ที่มี validation |
+| **Entities & Aggregate Root**| `Entity` จะมี Id ที่ใช้ยืนยันตัวตน ส่วน `AggregateRoot` จะเป็น Entity หลักของกลุ่มที่ใช้สำหรับดูแล Transaction |
+| **Value Objects** | คลาสที่ไม่มี Identity เช่น ชื่อ, ที่อยู่ เท่ากันวัดที่มูลค่าข้างใน |
+| **Domain Events** | `IDomainEvent` ใช้ยืนยันว่ามีสิ่งที่เกิดขึ้นจริงในธุรกิจแล้ว เช่น `ProductCreatedEvent` |
 | **Enums** | ค่าคงที่ทาง business เช่น `ProductStatus` (Draft, Active, Inactive) |
 | **Exceptions** | Custom exceptions สำหรับ business rule violations |
 | **Interfaces** | Repository interfaces — **ประกาศใน Domain** แต่ implement ใน Infrastructure (Dependency Inversion) |
 
-### 🟢 Phase 2: Application Layer (Use Cases)
+### 🟢 Phase 2 & 4: Application Layer (Use Cases & Event Handlers)
 **depends on Domain เท่านั้น**
 
 | ส่วนประกอบ | หน้าที่ |
@@ -80,14 +82,14 @@ CleanArchitectureDemo/
 | **DTOs** | Data objects สำหรับรับ-ส่งข้อมูลกับ client — ไม่ expose Entity ตรงๆ  |
 | **Interfaces** | Service interfaces กำหนด use cases ที่ app ทำได้ |
 | **Services** | ประสาน workflow: รับ DTO → เรียก Entity logic → เรียก Repository → คืน DTO |
-| **Common** | `Result<T>` wrapper สำหรับส่งสถานะ success/failure แทนการ throw exception |
+| **Event Handlers** | รอรับ Domain Events ผ่าน `MediatR` แล้วค่อยเอาไปประมวลผลต่อ (เช่น ส่ง Email แจ้งเตือนผ่าน Console Log) โดยที่ตัว Aggregate ลอยตัว ไม่ต้องมารอการส่ง Email |
 
-### 🟡 Phase 3: Infrastructure Layer (Implementation Details)
+### 🟡 Phase 3: Infrastructure Layer (Implementation Details & Event Dispatcher)
 **depends on Application (และ Domain ผ่าน transitive)**
 
 | ส่วนประกอบ | หน้าที่ |
 |---|---|
-| **DbContext** | EF Core database context — กำหนดการเชื่อมต่อ DB |
+| **DbContext** | EF Core database context — Override `SaveChangesAsync()` เพื่อเอา Events ทั้งหมดไปเข้าตาราง Dispatch ผ่าน MediatR ก่อน Save จริง |
 | **Configurations** | EF entity configuration (constraints, indexes, relationships) |
 | **Repositories** | Implement `IProductRepository` / `ICategoryRepository` ที่ประกาศใน Domain |
 | **DI Extension** | `AddInfrastructure()` method ลงทะเบียน services ทั้งหมดไว้ที่เดียว |
@@ -133,10 +135,9 @@ dotnet run --project src/CleanArchitectureDemo.API
 | `PUT` | `/api/categories/{id}` | อัปเดตหมวดหมู่ |
 | `DELETE` | `/api/categories/{id}` | ลบหมวดหมู่ |
 
-## 💡 หลักการสำคัญที่ใช้
+## 💡 หลักการสำคัญที่เพิ่มเข้ามาใหม่
 
-1. **Dependency Inversion Principle (DIP)** — Repository interface อยู่ใน Domain, implementation อยู่ใน Infrastructure
-2. **Separation of Concerns** — แต่ละ layer มีหน้าที่ชัดเจน ไม่ปนกัน
-3. **Rich Domain Model** — Entity มี business logic ภายใน ไม่ใช่แค่ data container
-4. **DTO Pattern** — ไม่ expose Domain Entity ให้ client โดยตรง
-5. **Result Pattern** — ใช้ `Result<T>` แทนการ throw exception สำหรับ expected failures
+1. **Rich Domain Model & Aggregate Root** — Entity มี business logic ภายใน ไม่ใช่แค่ data container และมีตัวแทนหลักทำหน้าที่คุม Transaction
+2. **Domain Events** — สร้าง Event ขึ้นมาเมื่อมีคำสั่งจาก Business Requirement เปลี่ยนที่ Aggregate 
+3. **Event Dispatching** — ก่อน Save DB (EF Core) ตัว AppDbContext จะลากกรอง Event แล้วสาด (Dispatch) ไปให้ Event Handlers
+4. **Loosely Coupled via MediatR** — ใช้ INotification และ INotificationHandler ทำให้คนสร้าง Event กับคนทำ Event (เช่น ส่งเมล์) ไม่ผูกติดกันรบกวนกัน
