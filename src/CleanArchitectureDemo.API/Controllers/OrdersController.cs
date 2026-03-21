@@ -1,4 +1,5 @@
-using CleanArchitectureDemo.Modules.Ordering.Application.Services;
+using CleanArchitectureDemo.Modules.Ordering.Application.Orders.Commands;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArchitectureDemo.API.Controllers;
@@ -7,24 +8,17 @@ namespace CleanArchitectureDemo.API.Controllers;
 [Route("api/[controller]")]
 public class OrdersController : ControllerBase
 {
-    private readonly IOrderService _orderService;
+    private readonly ISender _sender;
 
-    public OrdersController(IOrderService orderService)
-    {
-        _orderService = orderService;
-    }
+    public OrdersController(ISender sender) => _sender = sender;
 
     [HttpPost]
     public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request)
     {
-        var result = await _orderService.PlaceOrderAsync(request.ProductId, request.ProductName, request.UnitPrice, request.Quantity);
-        
-        if (result.IsSuccess)
-        {
-            return Ok(new { OrderId = result.Data, Message = "Order placed successfully!" });
-        }
-        
-        return BadRequest(result.ErrorMessage);
+        var result = await _sender.Send(new PlaceOrderCommand(request.ProductId, request.ProductName, request.UnitPrice, request.Quantity));
+        return result.IsSuccess 
+            ? Ok(new { OrderId = result.Data, Message = "Order placed successfully!" }) 
+            : BadRequest(result.ErrorMessage);
     }
 }
 

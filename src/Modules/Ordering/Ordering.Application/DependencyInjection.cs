@@ -1,4 +1,4 @@
-using CleanArchitectureDemo.Modules.Ordering.Application.Services;
+// Removed legacy Ordering Application Services
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -12,7 +12,7 @@ public static class DependencyInjection
         // to handle local command/queries if any.
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-        services.AddScoped<IOrderService, OrderService>();
+        // Note: CQRS Handlers are auto-registered via MediatR above
 
         return services;
     }

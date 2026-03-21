@@ -1,5 +1,4 @@
-using CleanArchitectureDemo.Modules.Catalog.Application.Interfaces;
-using CleanArchitectureDemo.Modules.Catalog.Application.Services;
+// Removed application services using statements
 using CleanArchitectureDemo.Modules.Catalog.Domain.Interfaces;
 using CleanArchitectureDemo.Modules.Catalog.Infrastructure.Data;
 using CleanArchitectureDemo.Modules.Catalog.Infrastructure.Repositories;
@@ -28,9 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
 
-        // Register Application Services
-        services.AddScoped<IProductService, ProductService>();
-        services.AddScoped<ICategoryService, CategoryService>();
+        // Note: Features are now registered via MediatR inside AddApplication()
 
         return services;
     }
