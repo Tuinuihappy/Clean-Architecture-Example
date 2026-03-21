@@ -21,6 +21,17 @@ public class OrderingDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Order>().HasData(
+            new { Id = 1, OrderDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), TotalAmount = 1525.00m },
+            new { Id = 2, OrderDate = new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Utc), TotalAmount = 55.00m }
+        );
+
+        modelBuilder.Entity<OrderItem>().HasData(
+            new { Id = 1, ProductId = 1, ProductName = "MacBook Pro M3", UnitPrice = 1500.00m, Quantity = 1, OrderId = 1 },
+            new { Id = 2, ProductId = 2, ProductName = "Clean Architecture T-Shirt", UnitPrice = 25.00m, Quantity = 1, OrderId = 1 },
+            new { Id = 3, ProductId = 3, ProductName = "Domain-Driven Design", UnitPrice = 55.00m, Quantity = 1, OrderId = 2 }
+        );
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

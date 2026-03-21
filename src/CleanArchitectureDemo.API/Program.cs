@@ -2,15 +2,16 @@ using CleanArchitectureDemo.API.Middleware;
 using CleanArchitectureDemo.Modules.Catalog.Infrastructure;
 using CleanArchitectureDemo.Modules.Ordering.Infrastructure;
 using CleanArchitectureDemo.Modules.Catalog.Infrastructure.Data;
+using CleanArchitectureDemo.Modules.Ordering.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ===== Register Services =====
 // เรียก AddCatalogModule() ซึ่งจะครอบคลุมทั้ง Application & Infrastructure ของตระกูล Catalog
-builder.Services.AddCatalogModule();
+builder.Services.AddCatalogModule(builder.Configuration);
 
 // เรียก AddOrderingModule() เตรียมพร้อมสำหรับระบบสั่งซื้อที่แยกอิสระจาก Catalog
-builder.Services.AddOrderingModule();
+builder.Services.AddOrderingModule(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -27,11 +28,14 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // ===== Seed Database =====
-// InMemory DB จะถูกสร้างใหม่ทุกครั้งที่ restart — ต้อง EnsureCreated เพื่อให้ seed data ทำงาน
+// จะถูกสร้างใหม่ด้วย EnsureCreated ถ้ายังไม่มีฐานข้อมูล (ทดแทน Migration ชั่วคราว)
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
+    var catalogContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    catalogContext.Database.EnsureCreated();
+    
+    var orderingContext = scope.ServiceProvider.GetRequiredService<OrderingDbContext>();
+    orderingContext.Database.EnsureCreated();
 }
 
 // ===== Middleware Pipeline =====

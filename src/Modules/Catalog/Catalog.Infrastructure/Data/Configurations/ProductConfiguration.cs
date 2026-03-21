@@ -35,5 +35,12 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.HasIndex(p => p.CategoryId);
         builder.HasIndex(p => p.Status);
+
+        // Seed data ตัวอย่าง
+        builder.HasData(
+            new { Id = 1, Name = "MacBook Pro M3", Description = "High performance laptop", Price = 1500.00m, StockQuantity = 10, CategoryId = 1, Status = CleanArchitectureDemo.Modules.Catalog.Domain.Enums.ProductStatus.Active, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+            new { Id = 2, Name = "Clean Architecture T-Shirt", Description = "Cotton t-shirt with Uncle Bob quote", Price = 25.00m, StockQuantity = 50, CategoryId = 2, Status = CleanArchitectureDemo.Modules.Catalog.Domain.Enums.ProductStatus.Active, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+            new { Id = 3, Name = "Domain-Driven Design", Description = "Tackling Complexity in the Heart of Software by Eric Evans", Price = 55.00m, StockQuantity = 100, CategoryId = 3, Status = CleanArchitectureDemo.Modules.Catalog.Domain.Enums.ProductStatus.Active, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+        );
     }
 }

@@ -1,4 +1,5 @@
 // Removed application services using statements
+using Microsoft.Extensions.Configuration;
 using CleanArchitectureDemo.Modules.Catalog.Domain.Interfaces;
 using CleanArchitectureDemo.Modules.Catalog.Infrastructure.Data;
 using CleanArchitectureDemo.Modules.Catalog.Infrastructure.Repositories;
@@ -14,14 +15,14 @@ namespace CleanArchitectureDemo.Modules.Catalog.Infrastructure;
 /// </summary>
 public static class DependencyInjection
 {
-    public static IServiceCollection AddCatalogModule(this IServiceCollection services)
+    public static IServiceCollection AddCatalogModule(this IServiceCollection services, IConfiguration configuration)
     {
         // ลงทะเบียน Application Layer ภายใน Module นี้
         services.AddApplication();
 
-        // Register DbContext (ใช้ InMemory สำหรับ demo)
+        // Register DbContext
         services.AddDbContext<AppDbContext>(options =>
-            options.UseInMemoryDatabase("CleanArchitectureDb"));
+            options.UseNpgsql(configuration.GetConnectionString("CatalogDbConnection")));
 
         // Register Repositories
         services.AddScoped<IProductRepository, ProductRepository>();
